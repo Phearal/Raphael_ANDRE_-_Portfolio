@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <link rel="icon" type="image/png" href="">
+    <link rel="stylesheet" href="style.css">
+    <title>Raphaël ANDRÉ | Portfolio</title>
+</head>
+
+<body>
+  
+    <header>
+        
+    </header>
+
+    <main>
+      <div>
+        <h1>Raphaël ANDRÉ</h1>
+      </div>
+        <canvas id="bgSphere"></canvas>
+    </main>
+
+    <footer>
+
+    </footer>
+
+<script type="module">
+  // THREE variables
+  let camera;
+  let renderer;
+  let scene;
+  let v3 = new THREE.Vector3();
+  // Get constraints of the canvas.
+  const getConstraints = () => {
+    const bgSphere = document.getElementById("bgSphere");
+    const { width, height } = bgSphere.getBoundingClientRect();
+    // Get attribute-set width and height - defaulting to computed constraints.
+    return [bgSphere.width ?? width, bgSphere.height ?? height];
+  };
+  // Retrieve a random point in the sphere for a particle to be set at.
+  
+  const getRandomPointInSphere = radius => {
+    v3.randomDirection();
+  
+    const normaliseRatio = 0.5 / Math.hypot(v3.x, v3.y, v3.z);
+  
+    v3.setLength(radius * normaliseRatio);
+  
+    return v3;
+  };
+  
+  // Initialisation methods.
+  const initScene = () => {
+    const [bgSphereWidth, bgSphereHeight] = getConstraints();
+    // Renderer initialisation.
+    renderer = new THREE.WebGLRenderer({
+      canvas: document.getElementById("bgSphere"),
+      antialias: true, alpha: true,
+    });
+    renderer.setSize(bgSphereWidth, bgSphereHeight);
+    renderer.setPixelRatio(window.devicePixelRatio);
+  
+    // Scene initialisation.
+    scene = new THREE.Scene();
+  
+    // Camera initialisation.
+    camera = new THREE.PerspectiveCamera(45, bgSphereWidth / bgSphereHeight, 1, 10000);
+    camera.position.set(350, -100, 800);
+    // camera.lookAt(scene.position);
+  };
+  
+
+  const initPoints = () => {
+    const geometry = new THREE.BufferGeometry();
+    const positions = [];
+  
+    const particleSize = 0.2;
+    const particleColor = 0x858585;
+    const particleCount = 5000 / (particleSize * 10);
+  
+    for(let i = 0; i < particleCount; i++){
+      let vertex = getRandomPointInSphere(1000);
+      positions.push(vertex.x, vertex.y, vertex.z);
+    }
+  
+    geometry.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+  
+    const material = new THREE.PointsMaterial({ size: particleSize, color: particleColor });
+    const particles = new THREE.Points(geometry, material);
+    scene.add(particles);
+
+    function animate() {
+          requestAnimationFrame( animate );
+          renderer.render( scene, camera );
+          particles.rotation.x += 0.005;
+          particles.rotation.y += 0.005;
+      }
+      animate();
+  };
+  
+  initScene();
+  initPoints();
+  renderer.render(scene, camera);
+  </script>
+<script src="assets/js/three.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
